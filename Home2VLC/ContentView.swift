@@ -154,6 +154,11 @@ struct ContentView: View {
             }
             loadURLHistory()
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("HandleDeepLink"))) { notification in
+            if let url = notification.object as? URL {
+                handleDeepLink(url)
+            }
+        }
     }
 
     private var canOpen: Bool {
@@ -210,6 +215,45 @@ struct ContentView: View {
     private func loadURLHistory() {
         if let savedHistory = UserDefaults.standard.array(forKey: "Home2VLC_URLHistory") as? [String] {
             urlHistory = Array(savedHistory.prefix(maxHistoryItems))
+        }
+    }
+    
+    private func handleDeepLink(_ url: URL) {
+        // Parse the deep link URL
+        // Expected formats:
+        // home2vlc://play?url=http://example.com/stream.m3u8
+        // home2vlc://http://example.com/stream.m3u8 (direct URL)
+        
+        var mediaURL: String?
+        
+        if url.host == "play", let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+            // Format: home2vlc://play?url=...
+            mediaURL = components.queryItems?.first { $0.name == "url" }?.value
+        } else if url.path.isEmpty || url.path == "/" {
+            // Format: home2vlc://http://example.com/... (URL after scheme)
+            let urlString = url.absoluteString
+            if let range = urlString.range(of: "home2vlc://") {
+                let afterScheme = String(urlString[range.upperBound...])
+                if afterScheme.hasPrefix("http") || afterScheme.hasPrefix("rtsp") || afterScheme.hasPrefix("ftp") {
+                    mediaURL = afterScheme
+                }
+            }
+        }
+        
+        guard let mediaURL = mediaURL, !mediaURL.isEmpty else {
+            DispatchQueue.main.async {
+                self.errorMessage = "Invalid deep link format. Expected: home2vlc://play?url=... or home2vlc://http://..."
+            }
+            return
+        }
+        
+        DispatchQueue.main.async {
+            // Set the URL in the text field
+            self.urlString = mediaURL
+            // Add to history
+            self.addToHistory(mediaURL)
+            // Automatically play the URL
+            self.openInVLC()
         }
     }
 

@@ -12,6 +12,17 @@ struct Home2VLCApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    handleDeepLink(url)
+                }
         }
+    }
+    
+    private func handleDeepLink(_ url: URL) {
+        // Post notification to ContentView to handle the URL
+        NotificationCenter.default.post(
+            name: NSNotification.Name("HandleDeepLink"),
+            object: url
+        )
     }
 }
