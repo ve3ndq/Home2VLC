@@ -414,6 +414,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Home2VLC/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Home2VLC;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Nathan Dykstra. All rights reserved.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app needs local network access to run an HTTP server that allows remote control of VLC playback from other devices on your network.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -421,7 +424,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "NDQ-Terminal.Home2VLC";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ndqterminal.home2vlc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -430,6 +433,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 15.6;
 			};
 			name = Debug;
 		};
@@ -444,6 +448,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Home2VLC/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Home2VLC;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Nathan Dykstra. All rights reserved.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app needs local network access to run an HTTP server that allows remote control of VLC playback from other devices on your network.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -451,7 +458,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "NDQ-Terminal.Home2VLC";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ndqterminal.home2vlc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -460,6 +467,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 15.6;
 			};
 			name = Release;
 		};
