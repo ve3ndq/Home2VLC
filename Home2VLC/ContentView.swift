@@ -14,6 +14,10 @@ struct ContentView: View {
     @State private var urlString: String = "http://sample.com:80/<user>/<password>/stream.ts"
     @State private var errorMessage: String?
     @State private var serverStatus: String = ""
+    @State private var urlHistory: [String] = []
+    @State private var showHistory: Bool = false
+    
+    private let maxHistoryItems = 10
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -59,6 +63,73 @@ struct ContentView: View {
             .buttonStyle(.borderedProminent)
             .disabled(!canOpen)
 
+            // History toggle button
+            if !urlHistory.isEmpty {
+                Button(action: { showHistory.toggle() }) {
+                    HStack {
+                        Image(systemName: showHistory ? "chevron.up" : "chevron.down")
+                        Text("URL History (\(urlHistory.count))")
+                        Spacer()
+                    }
+                    .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+
+            // URL History List
+            if showHistory && !urlHistory.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Recent URLs:")
+                        .font(.headline)
+                        .padding(.top, 8)
+                    
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 6) {
+                            ForEach(Array(urlHistory.enumerated()), id: \.offset) { index, url in
+                                Button(action: { selectHistoryURL(url) }) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        HStack {
+                                            Image(systemName: index < 3 ? "wifi" : "clock.arrow.circlepath")
+                                                .foregroundStyle(.secondary)
+                                                .font(.caption)
+                                            Text("\(index + 1).")
+                                                .foregroundStyle(.secondary)
+                                                .font(.caption)
+                                            Spacer()
+                                            if index < 3 {
+                                                Text("API")
+                                                    .font(.caption2)
+                                                    .foregroundStyle(.blue)
+                                                    .padding(.horizontal, 4)
+                                                    .padding(.vertical, 1)
+                                                    .background(
+                                                        RoundedRectangle(cornerRadius: 3)
+                                                            .fill(.blue.opacity(0.1))
+                                                    )
+                                            }
+                                        }
+                                        Text(url)
+                                            .font(.system(.body, design: .monospaced))
+                                            .foregroundStyle(.primary)
+                                            .multilineTextAlignment(.leading)
+                                            .lineLimit(2)
+                                    }
+                                    .padding(.vertical, 6)
+                                    .padding(.horizontal, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(.quaternary)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    .frame(maxHeight: 200)
+                }
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
             if let errorMessage {
                 Text(errorMessage)
                     .foregroundStyle(.red)
@@ -68,12 +139,20 @@ struct ContentView: View {
             Spacer()
         }
         .padding()
+        .animation(.easeInOut(duration: 0.3), value: showHistory)
         .onAppear {
             LocalHTTPServer.shared.start(on: 8080)
+            
+            // Set up callback to receive URLs from web server
+            LocalHTTPServer.shared.onURLReceived = { [self] url in
+                self.addToHistory(url)
+            }
+            
             DispatchQueue.main.async {
                 let ip = self.localIPv4Address() ?? "<unknown>"
                 self.serverStatus = "Server running on \(ip):\(LocalHTTPServer.shared.port)"
             }
+            loadURLHistory()
         }
     }
 
@@ -91,12 +170,46 @@ struct ContentView: View {
             return
         }
 
+        // Add to history before attempting to play
+        addToHistory(trimmed)
+
         VLCLauncher.shared.playURL(trimmed, title: nil) { success in
             if !success {
                 DispatchQueue.main.async {
                     self.errorMessage = "Could not open URL in VLC or any supported app."
                 }
             }
+        }
+    }
+    
+    private func selectHistoryURL(_ url: String) {
+        urlString = url
+        openInVLC()
+    }
+    
+    private func addToHistory(_ url: String) {
+        // Remove if already exists to avoid duplicates
+        urlHistory.removeAll { $0 == url }
+        
+        // Add to beginning
+        urlHistory.insert(url, at: 0)
+        
+        // Keep only the most recent items
+        if urlHistory.count > maxHistoryItems {
+            urlHistory = Array(urlHistory.prefix(maxHistoryItems))
+        }
+        
+        // Save to UserDefaults
+        saveURLHistory()
+    }
+    
+    private func saveURLHistory() {
+        UserDefaults.standard.set(urlHistory, forKey: "Home2VLC_URLHistory")
+    }
+    
+    private func loadURLHistory() {
+        if let savedHistory = UserDefaults.standard.array(forKey: "Home2VLC_URLHistory") as? [String] {
+            urlHistory = Array(savedHistory.prefix(maxHistoryItems))
         }
     }
 

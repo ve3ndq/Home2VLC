@@ -10,6 +10,9 @@ final class LocalHTTPServer {
     private var listener: NWListener?
     private let queue = DispatchQueue(label: "LocalHTTPServer.queue")
     private(set) var port: UInt16 = 8080
+    
+    // URL History management
+    var onURLReceived: ((String) -> Void)?
 
     private init() {}
 
@@ -104,6 +107,11 @@ final class LocalHTTPServer {
             guard let urlParam, !urlParam.isEmpty else {
                 sendResponse(status: 400, body: "Missing 'url' parameter", on: connection)
                 return
+            }
+
+            // Add URL to history via callback
+            DispatchQueue.main.async {
+                self.onURLReceived?(urlParam)
             }
 
             VLCLauncher.shared.playURL(urlParam, title: nil) { success in
