@@ -16,22 +16,44 @@ struct ContentView: View {
     @State private var serverStatus: String = ""
     @State private var urlHistory: [String] = []
     @State private var showHistory: Bool = false
+    @State private var showSettings: Bool = false
     
-    private let maxHistoryItems = 10
+    @AppStorage("webserverEnabled") private var webserverEnabled: Bool = true
+    @AppStorage("webserverPort") private var webserverPort: Int = 8080
+    @AppStorage("historyCount") private var historyCount: Int = 10
+    @AppStorage("autoPlayDeepLinks") private var autoPlayDeepLinks: Bool = true
+    @AppStorage("showNetworkStatus") private var showNetworkStatus: Bool = true
+    @AppStorage("hapticFeedback") private var hapticFeedback: Bool = true
+    @AppStorage("autoCollapseHistory") private var autoCollapseHistory: Bool = false
+    @AppStorage("defaultURLScheme") private var defaultURLScheme: String = "http://"
+    
+    private var maxHistoryItems: Int { historyCount }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Open Stream in VLC")
-                .font(.title2)
-                .bold()
+            HStack {
+                Text("Open Stream in VLC")
+                    .font(.title2)
+                    .bold()
+                
+                Spacer()
+                
+                Button(action: { showSettings = true }) {
+                    Image(systemName: "gear")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                }
+            }
 
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(serverStatus.isEmpty ? .gray : .green)
-                    .frame(width: 10, height: 10)
-                Text(serverStatus.isEmpty ? "Server starting…" : serverStatus)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+            if showNetworkStatus {
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(serverStatus.isEmpty ? .gray : (webserverEnabled ? .green : .orange))
+                        .frame(width: 10, height: 10)
+                    Text(webserverEnabled ? (serverStatus.isEmpty ? "Server starting…" : serverStatus) : "Server disabled")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             TextField("Enter media URL (http, https, rtsp, etc.)", text: $urlString)
@@ -50,6 +72,11 @@ struct ContentView: View {
                 .autocorrectionDisabled(true)
                 #if os(iOS)
                 .keyboardType(.URL)
+                .onTapGesture {
+                    if urlString.isEmpty {
+                        urlString = defaultURLScheme
+                    }
+                }
                 #endif
 
             Button(action: openInVLC) {
@@ -65,7 +92,15 @@ struct ContentView: View {
 
             // History toggle button
             if !urlHistory.isEmpty {
-                Button(action: { showHistory.toggle() }) {
+                Button(action: { 
+                    showHistory.toggle()
+                    #if os(iOS)
+                    if hapticFeedback {
+                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                        impactFeedback.impactOccurred()
+                    }
+                    #endif
+                }) {
                     HStack {
                         Image(systemName: showHistory ? "chevron.up" : "chevron.down")
                         Text("URL History (\(urlHistory.count))")
@@ -140,19 +175,24 @@ struct ContentView: View {
         }
         .padding()
         .animation(.easeInOut(duration: 0.3), value: showHistory)
+        .sheet(isPresented: $showSettings) {
+            SettingsView(
+                onSettingsChanged: {
+                    restartServerIfNeeded()
+                },
+                onClearHistory: {
+                    clearAllHistory()
+                }
+            )
+        }
         .onAppear {
-            LocalHTTPServer.shared.start(on: 8080)
-            
-            // Set up callback to receive URLs from web server
-            LocalHTTPServer.shared.onURLReceived = { [self] url in
-                self.addToHistory(url)
-            }
-            
-            DispatchQueue.main.async {
-                let ip = self.localIPv4Address() ?? "<unknown>"
-                self.serverStatus = "Server running on \(ip):\(LocalHTTPServer.shared.port)"
-            }
+            startServerIfEnabled()
             loadURLHistory()
+            
+            // Auto-collapse history if setting is enabled
+            if autoCollapseHistory {
+                showHistory = false
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("HandleDeepLink"))) { notification in
             if let url = notification.object as? URL {
@@ -174,6 +214,14 @@ struct ContentView: View {
             errorMessage = "Please enter a valid URL."
             return
         }
+
+        // Add haptic feedback
+        #if os(iOS)
+        if hapticFeedback {
+            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+            impactFeedback.impactOccurred()
+        }
+        #endif
 
         // Add to history before attempting to play
         addToHistory(trimmed)
@@ -218,6 +266,36 @@ struct ContentView: View {
         }
     }
     
+    private func startServerIfEnabled() {
+        if webserverEnabled {
+            LocalHTTPServer.shared.start(on: UInt16(webserverPort))
+            
+            // Set up callback to receive URLs from web server
+            LocalHTTPServer.shared.onURLReceived = { [self] url in
+                self.addToHistory(url)
+            }
+            
+            DispatchQueue.main.async {
+                let ip = self.localIPv4Address() ?? "<unknown>"
+                self.serverStatus = "Server running on \(ip):\(self.webserverPort)"
+            }
+        } else {
+            LocalHTTPServer.shared.stop()
+            serverStatus = "Server disabled"
+        }
+    }
+    
+    private func restartServerIfNeeded() {
+        LocalHTTPServer.shared.stop()
+        startServerIfEnabled()
+    }
+    
+    private func clearAllHistory() {
+        urlHistory.removeAll()
+        UserDefaults.standard.removeObject(forKey: "Home2VLC_URLHistory")
+        showHistory = false
+    }
+    
     private func handleDeepLink(_ url: URL) {
         // Parse the deep link URL
         // Expected formats:
@@ -252,8 +330,10 @@ struct ContentView: View {
             self.urlString = mediaURL
             // Add to history
             self.addToHistory(mediaURL)
-            // Automatically play the URL
-            self.openInVLC()
+            // Automatically play the URL if setting is enabled
+            if self.autoPlayDeepLinks {
+                self.openInVLC()
+            }
         }
     }
 
