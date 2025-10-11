@@ -29,9 +29,22 @@
 		54E1590E2E9AE27500E6BB27 /* Home2VLCUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Home2VLCUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		54E159222E9AE33600E6BB27 /* Exceptions for "Home2VLC" folder in "Home2VLC" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 54E158F62E9AE27200E6BB27 /* Home2VLC */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		54E158F92E9AE27200E6BB27 /* Home2VLC */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				54E159222E9AE33600E6BB27 /* Exceptions for "Home2VLC" folder in "Home2VLC" target */,
+			);
 			path = Home2VLC;
 			sourceTree = "<group>";
 		};
@@ -400,6 +413,7 @@
 				DEVELOPMENT_TEAM = 74KYRUD22B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Home2VLC/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -429,6 +443,7 @@
 				DEVELOPMENT_TEAM = 74KYRUD22B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Home2VLC/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
