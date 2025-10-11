@@ -8,22 +8,54 @@ All icons have been generated from `Home2VLC.png` and are located in the `AppIco
 
 ## iOS App Icons Mapping
 
-### App Icon Image Set (iOS)
+### tvOS App Icon Image Set (400x240)
 Located in: `Assets.xcassets/App Icon & Top Shelf Image.brandassets/App Icon.imagestack/`
 
 **Back Layer** (`Back.imagestacklayer/Content.imageset/`):
-- `iOS-AppStore-1024pt-1x.png` → Content.imageset (1024x1024)
+- `tvOS-AppIcon-Small-Back-320x192-1x.png` → 1x slot (320x192)
+- `tvOS-AppIcon-Small-Back-640x384-2x.png` → 2x slot (640x384)
 
 **Middle Layer** (`Middle.imagestacklayer/Content.imageset/`):
-- Use the same: `iOS-AppStore-1024pt-1x.png` → Content.imageset (1024x1024)
+- `tvOS-AppIcon-Small-Middle-360x216-1x.png` → 1x slot (360x216)
+- `tvOS-AppIcon-Small-Middle-720x432-2x.png` → 2x slot (720x432)
 
 **Front Layer** (`Front.imagestacklayer/Content.imageset/`):
-- Use the same: `iOS-AppStore-1024pt-1x.png` → Content.imageset (1024x1024)
+- `tvOS-AppIcon-Small-Front-400x240-1x.png` → 1x slot (400x240)
+- `tvOS-AppIcon-Small-Front-800x480-2x.png` → 2x slot (800x480)
+
+### tvOS App Store Icon Image Set (1280x768)
+Located in: `Assets.xcassets/App Icon & Top Shelf Image.brandassets/App Icon - App Store.imagestack/`
+
+**Back Layer** (`Back.imagestacklayer/Content.imageset/`):
+- `tvOS-AppIcon-Back-1024x614-1x.png` → 1x slot (1024x614)
+- `tvOS-AppIcon-Back-2048x1229-2x.png` → 2x slot (2048x1229)
+
+**Middle Layer** (`Middle.imagestacklayer/Content.imageset/`):
+- `tvOS-AppIcon-Middle-1152x691-1x.png` → 1x slot (1152x691)
+- `tvOS-AppIcon-Middle-2304x1382-2x.png` → 2x slot (2304x1382)
+
+**Front Layer** (`Front.imagestacklayer/Content.imageset/`):
+- `tvOS-AppIcon-Front-1280x768-1x.png` → 1x slot (1280x768)
+- `tvOS-AppIcon-Front-2560x1536-2x.png` → 2x slot (2560x1536)
 
 ### App Store Icon
 - `iOS-AppStore-1024pt-1x.png` → App Icon - App Store.imagestack/Back.imagestacklayer/Content.imageset/
 - `iOS-AppStore-1024pt-1x.png` → App Icon - App Store.imagestack/Middle.imagestacklayer/Content.imageset/
 - `iOS-AppStore-1024pt-1x.png` → App Icon - App Store.imagestack/Front.imagestacklayer/Content.imageset/
+
+## Important: tvOS Icon Requirements
+
+**tvOS has TWO different icon requirements:**
+
+1. **Regular App Icon (400x240)**: Used for home screen display
+   - Smaller, landscape aspect ratio
+   - Uses `tvOS-AppIcon-Small-*` files
+
+2. **App Store Icon (1280x768)**: Used for App Store submission  
+   - Larger, same landscape aspect ratio
+   - Uses `tvOS-AppIcon-*` files (without "Small")
+
+**Both sets use layered parallax effect with Front/Middle/Back layers**
 
 ## tvOS Top Shelf Images Mapping
 

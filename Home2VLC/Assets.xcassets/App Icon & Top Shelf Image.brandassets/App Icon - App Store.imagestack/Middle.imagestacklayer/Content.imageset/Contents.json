@@ -1,7 +1,14 @@
 {
   "images" : [
     {
-      "idiom" : "tv"
+      "filename" : "tvOS-AppIcon-Middle-1152x691-1x.png",
+      "idiom" : "tv",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "tvOS-AppIcon-Middle-2304x1382-2x.png",
+      "idiom" : "tv",
+      "scale" : "2x"
     }
   ],
   "info" : {
