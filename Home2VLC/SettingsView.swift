@@ -19,9 +19,23 @@ struct SettingsView: View {
     var onClearHistory: () -> Void
     
     var body: some View {
-        NavigationView {
-            Form {
-                Section("Web Server") {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Header
+                HStack {
+                    Text("Settings")
+                        .font(.largeTitle)
+                        .bold()
+                    Spacer()
+                }
+                .padding(.bottom, 10)
+                
+                // Web Server Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Web Server")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
                     Toggle("Enable Web Server", isOn: $webserverEnabled)
                         .onChange(of: webserverEnabled) { _ in
                             onSettingsChanged()
@@ -30,15 +44,58 @@ struct SettingsView: View {
                     HStack {
                         Text("Port")
                         Spacer()
+                        HStack(spacing: 8) {
+                            Button("-") {
+                                if webserverPort > 1024 {
+                                    webserverPort -= 1
+                                    tempPort = String(webserverPort)
+                                    onSettingsChanged()
+                                }
+                            }
+                            .frame(width: 30, height: 30)
+                            .background(Color.accentColor.opacity(0.2))
+                            .cornerRadius(6)
+                            .disabled(!webserverEnabled)
+                            
+                            Text("\(webserverPort)")
+                                .frame(minWidth: 60)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                #if os(iOS)
+                                .background(Color(UIColor.tertiarySystemFill))
+                                #else
+                                .background(Color.gray.opacity(0.2))
+                                #endif
+                                .cornerRadius(6)
+                            
+                            Button("+") {
+                                if webserverPort < 65535 {
+                                    webserverPort += 1
+                                    tempPort = String(webserverPort)
+                                    onSettingsChanged()
+                                }
+                            }
+                            .frame(width: 30, height: 30)
+                            .background(Color.accentColor.opacity(0.2))
+                            .cornerRadius(6)
+                            .disabled(!webserverEnabled)
+                        }
+                    }
+                    
+                    #if os(iOS)
+                    HStack {
+                        Text("Edit Port Directly")
+                        Spacer()
                         TextField("Port", text: $tempPort)
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
-                            .frame(width: 80)
+                            .frame(width: 100)
                             .onSubmit {
                                 updatePort()
                             }
                     }
                     .disabled(!webserverEnabled)
+                    #endif
                     
                     if webserverEnabled {
                         Text("Server accessible at port \(webserverPort)")
@@ -46,19 +103,70 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .padding()
+                #if os(iOS)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                #else
+                .background(Color.gray.opacity(0.15))
+                #endif
+                .cornerRadius(10)
                 
-                Section("History") {
+                // History Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("History")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
                     HStack {
                         Text("Max History Items")
+                        Spacer()
+                        HStack(spacing: 8) {
+                            Button("-") {
+                                if historyCount > 1 {
+                                    historyCount -= 1
+                                    tempHistoryCount = String(historyCount)
+                                }
+                            }
+                            .frame(width: 30, height: 30)
+                            .background(Color.accentColor.opacity(0.2))
+                            .cornerRadius(6)
+                            
+                            Text("\(historyCount)")
+                                .frame(minWidth: 40)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                #if os(iOS)
+                                .background(Color(UIColor.tertiarySystemFill))
+                                #else
+                                .background(Color.gray.opacity(0.2))
+                                #endif
+                                .cornerRadius(6)
+                            
+                            Button("+") {
+                                if historyCount < 50 {
+                                    historyCount += 1
+                                    tempHistoryCount = String(historyCount)
+                                }
+                            }
+                            .frame(width: 30, height: 30)
+                            .background(Color.accentColor.opacity(0.2))
+                            .cornerRadius(6)
+                        }
+                    }
+                    
+                    #if os(iOS)
+                    HStack {
+                        Text("Edit Max Items Directly")
                         Spacer()
                         TextField("Count", text: $tempHistoryCount)
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
-                            .frame(width: 60)
+                            .frame(width: 80)
                             .onSubmit {
                                 updateHistoryCount()
                             }
                     }
+                    #endif
                     
                     Toggle("Auto-collapse History", isOn: $autoCollapseHistory)
                     
@@ -73,19 +181,56 @@ struct SettingsView: View {
                     }
                     .foregroundStyle(.red)
                 }
+                .padding()
+                #if os(iOS)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                #else
+                .background(Color.gray.opacity(0.15))
+                #endif
+                .cornerRadius(10)
                 
-                Section("Playback") {
+                // Playback Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Playback")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
                     Toggle("Auto-play Deep Links", isOn: $autoPlayDeepLinks)
                     
-                    Picker("Default URL Scheme", selection: $defaultURLScheme) {
-                        Text("http://").tag("http://")
-                        Text("https://").tag("https://")
-                        Text("rtsp://").tag("rtsp://")
-                        Text("ftp://").tag("ftp://")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Default URL Scheme")
+                        HStack {
+                            ForEach(["http://", "https://", "rtsp://", "ftp://"], id: \.self) { scheme in
+                                Button(scheme) {
+                                    defaultURLScheme = scheme
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                #if os(iOS)
+                                .background(defaultURLScheme == scheme ? Color.accentColor : Color(UIColor.tertiarySystemFill))
+                                #else
+                                .background(defaultURLScheme == scheme ? Color.accentColor : Color.gray.opacity(0.2))
+                                #endif
+                                .foregroundStyle(defaultURLScheme == scheme ? .white : .primary)
+                                .cornerRadius(6)
+                            }
+                        }
                     }
                 }
+                .padding()
+                #if os(iOS)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                #else
+                .background(Color.gray.opacity(0.15))
+                #endif
+                .cornerRadius(10)
                 
-                Section("Interface") {
+                // Interface Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Interface")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
                     Toggle("Show Network Status", isOn: $showNetworkStatus)
                         .onChange(of: showNetworkStatus) { _ in
                             onSettingsChanged()
@@ -95,8 +240,20 @@ struct SettingsView: View {
                     Toggle("Haptic Feedback", isOn: $hapticFeedback)
                     #endif
                 }
+                .padding()
+                #if os(iOS)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                #else
+                .background(Color.gray.opacity(0.15))
+                #endif
+                .cornerRadius(10)
                 
-                Section("Information") {
+                // Information Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Information")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
                     HStack {
                         Text("App Version")
                         Spacer()
@@ -119,8 +276,20 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .padding()
+                #if os(iOS)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                #else
+                .background(Color.gray.opacity(0.15))
+                #endif
+                .cornerRadius(10)
                 
-                Section("About") {
+                // About Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("About")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
                     Link("GitHub Repository", destination: URL(string: "https://github.com/ve3ndq/Home2VLC")!)
                     
                     HStack {
@@ -130,11 +299,15 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .padding()
+                #if os(iOS)
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                #else
+                .background(Color.gray.opacity(0.15))
+                #endif
+                .cornerRadius(10)
             }
-            .navigationTitle("Settings")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.large)
-            #endif
+            .padding()
         }
         .onAppear {
             tempPort = String(webserverPort)

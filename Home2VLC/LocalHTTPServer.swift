@@ -23,15 +23,29 @@ final class LocalHTTPServer {
             self.port = port
             do {
                 let params = NWParameters.tcp
+                // Configure parameters to reduce system warnings
+                params.requiredLocalEndpoint = nil
+                params.prohibitedInterfaces = nil
+                params.allowLocalEndpointReuse = true
+                
                 self.listener = try NWListener(using: params, on: NWEndpoint.Port(rawValue: port)!)
                 self.listener?.newConnectionHandler = { [weak self] connection in
                     self?.handle(connection: connection)
                 }
                 self.listener?.stateUpdateHandler = { [weak self] state in
-                    self?.logger.debug("Listener state: \(String(describing: state))")
+                    switch state {
+                    case .ready:
+                        self?.logger.info("HTTP server ready on port \(self?.port ?? 0)")
+                    case .failed(let error):
+                        self?.logger.error("Listener failed: \(error.localizedDescription)")
+                    case .cancelled:
+                        self?.logger.info("Listener cancelled")
+                    default:
+                        self?.logger.debug("Listener state: \(String(describing: state))")
+                    }
                 }
                 self.listener?.start(queue: self.queue)
-                self.logger.info("HTTP server started on port \(self.port)")
+                self.logger.info("HTTP server starting on port \(self.port)")
             } catch {
                 self.logger.error("Failed to start listener: \(error.localizedDescription)")
             }
