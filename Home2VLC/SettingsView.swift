@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var showingClearHistoryAlert = false
     @State private var tempPort: String = ""
     @State private var tempHistoryCount: String = ""
+    @State private var showAboutView = false
     
     var onSettingsChanged: () -> Void
     var onClearHistory: () -> Void
@@ -40,62 +41,31 @@ struct SettingsView: View {
                         .onChange(of: webserverEnabled) { _ in
                             onSettingsChanged()
                         }
+                        #if os(tvOS)
+                        .focusEffectDisabled()
+                        #endif
                     
                     HStack {
                         Text("Port")
                         Spacer()
-                        HStack(spacing: 8) {
-                            Button("-") {
-                                if webserverPort > 1024 {
-                                    webserverPort -= 1
-                                    tempPort = String(webserverPort)
-                                    onSettingsChanged()
-                                }
-                            }
-                            .frame(width: 30, height: 30)
-                            .background(Color.accentColor.opacity(0.2))
-                            .cornerRadius(6)
-                            .disabled(!webserverEnabled)
-                            
-                            Text("\(webserverPort)")
-                                .frame(minWidth: 60)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                #if os(iOS)
-                                .background(Color(UIColor.tertiarySystemFill))
-                                #else
-                                .background(Color.gray.opacity(0.2))
-                                #endif
-                                .cornerRadius(6)
-                            
-                            Button("+") {
-                                if webserverPort < 65535 {
-                                    webserverPort += 1
-                                    tempPort = String(webserverPort)
-                                    onSettingsChanged()
-                                }
-                            }
-                            .frame(width: 30, height: 30)
-                            .background(Color.accentColor.opacity(0.2))
-                            .cornerRadius(6)
-                            .disabled(!webserverEnabled)
-                        }
-                    }
-                    
-                    #if os(iOS)
-                    HStack {
-                        Text("Edit Port Directly")
-                        Spacer()
                         TextField("Port", text: $tempPort)
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
-                            .frame(width: 100)
+                            .frame(width: 140)
+                            #if os(iOS)
+                            .textFieldStyle(.roundedBorder)
+                            #else
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(6)
+                            .focusEffectDisabled()
+                            #endif
                             .onSubmit {
                                 updatePort()
                             }
+                            .disabled(!webserverEnabled)
                     }
-                    .disabled(!webserverEnabled)
-                    #endif
                     
                     if webserverEnabled {
                         Text("Server accessible at port \(webserverPort)")
@@ -120,57 +90,33 @@ struct SettingsView: View {
                     HStack {
                         Text("Max History Items")
                         Spacer()
-                        HStack(spacing: 8) {
-                            Button("-") {
-                                if historyCount > 1 {
-                                    historyCount -= 1
-                                    tempHistoryCount = String(historyCount)
-                                }
-                            }
-                            .frame(width: 30, height: 30)
-                            .background(Color.accentColor.opacity(0.2))
-                            .cornerRadius(6)
-                            
-                            Text("\(historyCount)")
-                                .frame(minWidth: 40)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                #if os(iOS)
-                                .background(Color(UIColor.tertiarySystemFill))
-                                #else
-                                .background(Color.gray.opacity(0.2))
-                                #endif
-                                .cornerRadius(6)
-                            
-                            Button("+") {
-                                if historyCount < 50 {
-                                    historyCount += 1
-                                    tempHistoryCount = String(historyCount)
-                                }
-                            }
-                            .frame(width: 30, height: 30)
-                            .background(Color.accentColor.opacity(0.2))
-                            .cornerRadius(6)
-                        }
-                    }
-                    
-                    #if os(iOS)
-                    HStack {
-                        Text("Edit Max Items Directly")
-                        Spacer()
                         TextField("Count", text: $tempHistoryCount)
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
-                            .frame(width: 80)
+                            .frame(width: 140)
+                            #if os(iOS)
+                            .textFieldStyle(.roundedBorder)
+                            #else
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(6)
+                            .focusEffectDisabled()
+                            #endif
                             .onSubmit {
                                 updateHistoryCount()
                             }
                     }
-                    #endif
                     
                     Toggle("Auto-collapse History", isOn: $autoCollapseHistory)
+                        #if os(tvOS)
+                        .focusEffectDisabled()
+                        #endif
                     
                     Toggle("Confirm Before Clearing", isOn: $confirmClearHistory)
+                        #if os(tvOS)
+                        .focusEffectDisabled()
+                        #endif
                     
                     Button("Clear History") {
                         if confirmClearHistory {
@@ -180,6 +126,9 @@ struct SettingsView: View {
                         }
                     }
                     .foregroundStyle(.red)
+                    #if os(tvOS)
+                    .focusEffectDisabled()
+                    #endif
                 }
                 .padding()
                 #if os(iOS)
@@ -196,6 +145,9 @@ struct SettingsView: View {
                         .foregroundStyle(.primary)
                     
                     Toggle("Auto-play Deep Links", isOn: $autoPlayDeepLinks)
+                        #if os(tvOS)
+                        .focusEffectDisabled()
+                        #endif
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Default URL Scheme")
@@ -213,6 +165,9 @@ struct SettingsView: View {
                                 #endif
                                 .foregroundStyle(defaultURLScheme == scheme ? .white : .primary)
                                 .cornerRadius(6)
+                                #if os(tvOS)
+                                .focusEffectDisabled()
+                                #endif
                             }
                         }
                     }
@@ -235,6 +190,9 @@ struct SettingsView: View {
                         .onChange(of: showNetworkStatus) { _ in
                             onSettingsChanged()
                         }
+                        #if os(tvOS)
+                        .focusEffectDisabled()
+                        #endif
                     
                     #if os(iOS)
                     Toggle("Haptic Feedback", isOn: $hapticFeedback)
@@ -290,9 +248,39 @@ struct SettingsView: View {
                         .font(.headline)
                         .foregroundStyle(.primary)
                     
-                    Link("GitHub Repository", destination: URL(string: "https://github.com/ve3ndq/Home2VLC")!)
+                    Button(action: { showAboutView = true }) {
+                        HStack {
+                            Image(systemName: "info.circle")
+                                .foregroundStyle(.blue)
+                            Text("About Home2VLC")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.secondary)
+                                .font(.caption)
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Link(destination: URL(string: "https://github.com/ve3ndq/Home2VLC")!) {
+                        HStack {
+                            Image(systemName: "link")
+                                .foregroundStyle(.blue)
+                            Text("GitHub Repository")
+                                .foregroundStyle(.blue)
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .foregroundStyle(.blue)
+                                .font(.caption)
+                        }
+                    }
+                    #if os(tvOS)
+                    .focusEffectDisabled()
+                    #endif
                     
                     HStack {
+                        Image(systemName: "person.circle")
+                            .foregroundStyle(.secondary)
                         Text("Developer")
                         Spacer()
                         Text("Nathan Dykstra")
@@ -321,6 +309,11 @@ struct SettingsView: View {
         } message: {
             Text("This will permanently delete all URL history. This action cannot be undone.")
         }
+        .background(
+            NavigationLink(destination: AboutView(), isActive: $showAboutView) {
+                EmptyView()
+            }
+        )
     }
     
     private func updatePort() {
