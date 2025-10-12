@@ -1,12 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "tvOS-TopShelf-400x240-1x.png",
+      "filename" : "top_shelf_1920x720.png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "tvOS-TopShelf-800x480-2x.png",
       "idiom" : "tv",
       "scale" : "2x"
     }

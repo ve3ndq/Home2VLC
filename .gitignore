@@ -51,3 +51,6 @@ fastlane/test_output
 
 # Code Injection
 iOSInjectionProject/
+
+# App Store submission materials
+AppStore/
