@@ -309,11 +309,21 @@ struct SettingsView: View {
         } message: {
             Text("This will permanently delete all URL history. This action cannot be undone.")
         }
-        .background(
-            NavigationLink(destination: AboutView(), isActive: $showAboutView) {
-                EmptyView()
+        .sheet(isPresented: $showAboutView) {
+            NavigationView {
+                AboutView()
+                    #if os(iOS)
+                    .navigationBarTitleDisplayMode(.large)
+                    #endif
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Done") {
+                                showAboutView = false
+                            }
+                        }
+                    }
             }
-        )
+        }
     }
     
     private func updatePort() {
