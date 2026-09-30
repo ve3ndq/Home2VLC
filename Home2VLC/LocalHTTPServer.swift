@@ -123,15 +123,14 @@ final class LocalHTTPServer {
                 return
             }
 
-            // Add URL to history via callback
+            // UI and player operations must run on the main actor.
             DispatchQueue.main.async {
                 self.onURLReceived?(urlParam)
-            }
-
-            VLCLauncher.shared.playURL(urlParam, title: nil) { success in
-                let status = success ? 200 : 502
-                let body = success ? "OK" : "Failed to open URL"
-                self.sendResponse(status: status, body: body, on: connection)
+                PlaybackController.shared.playURL(urlParam) { success in
+                    let status = success ? 200 : 502
+                    let body = success ? "OK" : "Failed to open URL"
+                    self.sendResponse(status: status, body: body, on: connection)
+                }
             }
         } else {
             sendResponse(status: 404, body: "Not Found", on: connection)

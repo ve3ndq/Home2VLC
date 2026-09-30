@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* Vendor/TVVLCKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* Vendor/TVVLCKit.xcframework */; };
+		A10000000000000000000002 /* Vendor/TVVLCKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* Vendor/TVVLCKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		54E159052E9AE27500E6BB27 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -23,10 +28,25 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		A10000000000000000000004 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A10000000000000000000002 /* Vendor/TVVLCKit.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		54E158F72E9AE27200E6BB27 /* Home2VLC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Home2VLC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		54E159042E9AE27500E6BB27 /* Home2VLCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Home2VLCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		54E1590E2E9AE27500E6BB27 /* Home2VLCUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Home2VLCUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000003 /* Vendor/TVVLCKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Vendor/TVVLCKit.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -65,6 +85,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A10000000000000000000001 /* Vendor/TVVLCKit.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +109,7 @@
 		54E158EE2E9AE27200E6BB27 = {
 			isa = PBXGroup;
 			children = (
+				A10000000000000000000003 /* Vendor/TVVLCKit.xcframework */,
 				54E158F92E9AE27200E6BB27 /* Home2VLC */,
 				54E159072E9AE27500E6BB27 /* Home2VLCTests */,
 				54E159112E9AE27500E6BB27 /* Home2VLCUITests */,
@@ -115,6 +137,7 @@
 				54E158F32E9AE27200E6BB27 /* Sources */,
 				54E158F42E9AE27200E6BB27 /* Frameworks */,
 				54E158F52E9AE27200E6BB27 /* Resources */,
+				A10000000000000000000004 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @AppStorage("playbackMode") private var playbackMode: String = PlaybackMode.externalVLC.rawValue
     @AppStorage("webserverEnabled") private var webserverEnabled: Bool = true
     @AppStorage("webserverPort") private var webserverPort: Int = 8080
     @AppStorage("historyCount") private var historyCount: Int = 10
@@ -15,6 +16,7 @@ struct SettingsView: View {
     @State private var tempPort: String = ""
     @State private var tempHistoryCount: String = ""
     @State private var showAboutView = false
+    @State private var showLicenses = false
     
     var onSettingsChanged: () -> Void
     var onClearHistory: () -> Void
@@ -143,6 +145,15 @@ struct SettingsView: View {
                     Text("Playback")
                         .font(.headline)
                         .foregroundStyle(.primary)
+
+                    Picker("Player", selection: $playbackMode) {
+                        ForEach(PlaybackMode.allCases) { mode in
+                            Text(mode.title).tag(mode.rawValue)
+                        }
+                    }
+                    Text("The in-app player keeps Home2VLC open during playback, allowing new HTTP playback requests. The server is unavailable when the app is closed or suspended.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     
                     Toggle("Auto-play Deep Links", isOn: $autoPlayDeepLinks)
                         #if os(tvOS)
@@ -247,6 +258,8 @@ struct SettingsView: View {
                     Text("About")
                         .font(.headline)
                         .foregroundStyle(.primary)
+
+                    Button("Open Source Licenses") { showLicenses = true }
                     
                     Button(action: { showAboutView = true }) {
                         HStack {
@@ -323,6 +336,9 @@ struct SettingsView: View {
                         }
                     }
             }
+        }
+        .sheet(isPresented: $showLicenses) {
+            OpenSourceLicensesView()
         }
     }
     

@@ -11,6 +11,7 @@
 # Build products
 build/
 DerivedData/
+Vendor/TVVLCKit.xcframework/
 
 # macOS
 .DS_Store

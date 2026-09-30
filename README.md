@@ -27,6 +27,33 @@ The app supports various media URL formats:
 
 ## Usage
 
+### Embedded tvOS playback
+
+Before building this checkout, run `bash scripts/setup-tvvlckit.sh`. It downloads
+the official TVVLCKit 3.7.2 XCFramework, verifies its SHA-256, and installs it under
+`Vendor/` (excluded from Git). No CocoaPods installation is required.
+
+Choose **Settings → Playback → Player → In-app player (TVVLCKit)** to play inside
+Home2VLC. **External VLC app** remains the default. The setting applies to manual
+entry, HTTP requests, and deep links. The embedded player has pause/play and
+Stop & Close controls, plus Siri Remote play/pause and Back/Menu support. A new
+request replaces the current stream.
+
+The server remains available during foreground in-app playback. It cannot serve
+requests while the app is closed or suspended. HTTP `200 OK` confirms request
+acceptance or external app handoff, not successful video playback.
+
+Use URL encoding when sending signed links or query parameters:
+
+```bash
+curl 'http://APPLE_TV_IP:8080/play' \
+  --data-urlencode 'url=https://example.com/live.m3u8?token=abc&quality=hd'
+```
+
+See [TVVLCKit integration notes](TVVLCKIT_INTEGRATION.md) for dependency details,
+device checks, and licensing work required before commercial distribution.
+The configured product and new dependency target tvOS.
+
 ### Manual URL Entry
 
 1. Launch the app
@@ -68,7 +95,7 @@ curl -X POST http://192.168.1.100:8080/play \
 ## API Response
 
 The API returns:
-- `200 OK` - URL successfully opened in video player
+- `200 OK` - Playback request accepted or URL opened in an external app; playback is not confirmed
 - `400 Bad Request` - Missing or invalid URL parameter
 - `502 Bad Gateway` - Failed to open URL in any compatible app
 

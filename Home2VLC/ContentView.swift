@@ -11,12 +11,15 @@ import SwiftUI
 import SystemConfiguration
 
 struct ContentView: View {
+    @ObservedObject private var playback = PlaybackController.shared
+    @AppStorage("playbackMode") private var playbackMode: String = PlaybackMode.externalVLC.rawValue
     @State private var urlString: String = "http://sample.com:80/<user>/<password>/stream.ts"
     @State private var errorMessage: String?
     @State private var serverStatus: String = ""
     @State private var urlHistory: [String] = []
     @State private var showHistory: Bool = false
     @State private var showSettings: Bool = false
+    @State private var showPlayer: Bool = false
     
     @AppStorage("webserverEnabled") private var webserverEnabled: Bool = true
     @AppStorage("webserverPort") private var webserverPort: Int = 8080
@@ -32,7 +35,7 @@ struct ContentView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Open Stream in VLC")
+                Text("Play Stream")
                     .font(.title2)
                     .bold()
                 
@@ -82,7 +85,7 @@ struct ContentView: View {
             Button(action: openInVLC) {
                 HStack {
                     Image(systemName: "play.rectangle.fill")
-                    Text("Open in VLC")
+                    Text(playbackMode == PlaybackMode.embeddedVLC.rawValue ? "Play in Home2VLC" : "Open in VLC")
                         .bold()
                 }
                 .frame(maxWidth: .infinity)
@@ -175,7 +178,22 @@ struct ContentView: View {
         }
         .padding()
         .animation(.easeInOut(duration: 0.3), value: showHistory)
-        .sheet(isPresented: $showSettings) {
+        .onChange(of: playback.isPresented) { _, presented in
+            if presented && showSettings {
+                // Dismiss settings before presenting a remotely requested stream.
+                showSettings = false
+            } else {
+                showPlayer = presented
+            }
+        }
+        .fullScreenCover(isPresented: $showPlayer, onDismiss: {
+            if !showPlayer { playback.stop() }
+        }) {
+            EmbeddedPlayerView(playback: playback)
+        }
+        .sheet(isPresented: $showSettings, onDismiss: {
+            if playback.isPresented { showPlayer = true }
+        }) {
             SettingsView(
                 onSettingsChanged: {
                     restartServerIfNeeded()
@@ -226,10 +244,10 @@ struct ContentView: View {
         // Add to history before attempting to play
         addToHistory(trimmed)
 
-        VLCLauncher.shared.playURL(trimmed, title: nil) { success in
+        PlaybackController.shared.playURL(trimmed) { success in
             if !success {
                 DispatchQueue.main.async {
-                    self.errorMessage = "Could not open URL in VLC or any supported app."
+                    self.errorMessage = "Could not open this URL with the selected player."
                 }
             }
         }
